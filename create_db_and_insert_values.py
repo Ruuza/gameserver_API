@@ -19,8 +19,8 @@ for card in cards:
 
 #### Machines ####
 machines = []
-machines.append(Machine(card_id=1))
-machines.append(Machine(card_id=2))
+machines.append(Machine())
+machines.append(Machine())
 
 for machine in machines:
     db.session.add(machine)
