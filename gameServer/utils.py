@@ -5,6 +5,9 @@ from pymysql import NULL, STRING
 from gameServer.models import Game, Card, Machine, Event_log, Event_type
 from gameServer import db
 
+
+machines_in_games = {}
+
 def generate_error_reply_JSON(error_desc):
     '''
         Generate json string that will look like: {"sucess": 0, "error_desc":<error_desc>}
@@ -71,7 +74,7 @@ def is_machine(machine_id):
     '''
         Check if machine exists
 
-        return: True if machine exists
+        returns: True if machine exists
                 Else if macine not exists
     '''
 
@@ -86,7 +89,7 @@ def is_card(card_serial_number):
     '''
         Check if the card exists
 
-        return: True if card exists
+        returns: True if card exists
                 Else if card not exists
     '''
 
@@ -101,7 +104,7 @@ def get_card_id_by_serial_number(card_serial_number):
     '''
         Check id of the card by it's serial number
 
-        return: id of the card
+        returns: id of the card
     '''
 
     card = Card.query.filter_by(serial_number=card_serial_number).first()
@@ -113,7 +116,7 @@ def is_card_in_machine(machine_id, card_serial_number):
     '''
         Check if the card is in the machine
 
-        return: True if card is in the machine
+        returns: True if card is in the machine
                 Else if not
     '''
 
@@ -131,7 +134,7 @@ def card_logout(machine_id):
     '''
         Logout the card from the machine. Card has to be logged and serial number has to match
 
-        return: None if succesfully logout, else returns return message
+        returns: None if succesfully logout, else returns return message
     '''
 
     machine = Machine.query.get(machine_id)
@@ -148,7 +151,7 @@ def card_login(machine_id, card_serial_number):
     '''
         Login the card into the machine. If another card is already logged, logout the other before
 
-        return: None if succesfully logout, else returns return message
+        returns: None if succesfully logout, else returns return message
     '''
     
     machine = Machine.query.get(machine_id)
@@ -167,7 +170,7 @@ def log_event(event_type_id, machine_id, card_id):
     '''
         Logs the event
 
-        return: True when success
+        returns: True when success
     '''
 
     event = Event_log(event_id=event_type_id, machine_id=machine_id, card_id=card_id)
@@ -177,3 +180,70 @@ def log_event(event_type_id, machine_id, card_id):
 
     return True
 
+def is_game(game_id):
+    '''
+        Check if game_id is in database
+
+        returns: True if game_id is in database, False if not
+    '''
+
+    game = Game.query.get(game_id)
+
+    if game is None:
+        return False
+    else:
+        return True
+
+
+def enter_game(machine_id, game_id):
+    '''
+        Enter the game
+
+        returns: True when success
+    '''
+
+    if not is_machine:
+        raise ValueError("Machine ID don't exists!")
+
+    if machine_id in machines_in_games.keys():
+        raise SystemError("Machine is already in some game! Leave it")
+    
+    if not is_game(game_id):
+        raise ValueError("Game ID don't exists!")
+    
+    log_event(3, machine_id, Machine.query.get(machine_id).card_id)
+    machines_in_games[machine_id] = game_id
+
+    
+
+
+def exit_game(machine_id, game_id):
+    '''
+        Leave the game
+
+        returns: True when success
+    '''
+
+    if not is_machine:
+        raise ValueError("Machine ID don't exists!")
+
+    if machine_id not in machines_in_games.keys():
+        raise SystemError("Machine is not in the game!")
+
+    if game_id != machines_in_games[machine_id]:
+        raise ValueError("This game ID is not a current game on this machine!")
+    else:
+        log_event(4, machine_id, Machine.query.get(machine_id).card_id)
+        machines_in_games.pop(machine_id)
+
+
+def get_current_game(machine_id):
+    '''
+        Returns id of the current game, that is running on machine
+
+        returns: ID of the game. None if there is no game on machine
+    '''
+    if machine_id in machines_in_games.keys():
+        return machines_in_games[machine_id]
+    else:
+        return None
