@@ -125,7 +125,6 @@ def api_spin(machine_id):
 
         body = request.get_json(force=True)
 
-        print(request.form)
         spin(machine_id, body['bet'], body['timestamp'])
 
 
