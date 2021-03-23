@@ -5,7 +5,6 @@ class Machine(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=True)
     created_datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
@@ -47,7 +46,7 @@ class Event_log(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey('event_type.id'), nullable=False)
     created_datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     machine_id = db.Column(db.Integer, db.ForeignKey('machine.id'), nullable=False)
-    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=True)
 
     def __repr__(self):
         return f"Event_log('{self.event_id}', '{self.machine_id}', '{self.card_id}', '{self.created_datetime}')"
