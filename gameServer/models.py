@@ -4,7 +4,8 @@ from gameServer import db
 class Machine(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=True)
     created_datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
@@ -12,7 +13,7 @@ class Machine(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    serial_number = db.Column(db.String(20), nullable=False)
+    serial_number = db.Column(db.String(20), nullable=False, unique=True)
     created_datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     machines = db.relationship('Machine', backref='card_in_usage', lazy=True)
 
