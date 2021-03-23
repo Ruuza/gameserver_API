@@ -1,6 +1,8 @@
+from flask import request
 from gameServer import app, db
 from gameServer.utils import (generate_error_reply_JSON, generate_list_of_games_reply_JSON, generate_success_reply_JSON,
- validate_card_serial_number, validate_card_serial_number, is_machine, is_card, card_login, card_logout, is_card_in_machine, enter_game, exit_game)
+ validate_card_serial_number, validate_card_serial_number, is_machine, is_card, card_login, card_logout, is_card_in_machine,
+ enter_game, exit_game, spin)
 from gameServer.models import Card
 
 
@@ -105,6 +107,26 @@ def api_exit_game(machine_id, game_id):
 
         
         exit_game(machine_id, game_id)
+
+
+        return str(generate_success_reply_JSON())
+    
+    except Exception as e:
+        return str(generate_error_reply_JSON(str(e)))
+
+
+
+@app.route("/machines/<int:machine_id>/spin", methods=['POST'])
+def api_spin(machine_id):
+    try:
+
+        if not is_machine(machine_id):
+            return str(generate_error_reply_JSON("machine with that id don't exists!"))
+
+        body = request.get_json(force=True)
+
+        print(request.form)
+        spin(machine_id, body['bet'], body['timestamp'])
 
 
         return str(generate_success_reply_JSON())

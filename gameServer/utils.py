@@ -1,8 +1,8 @@
 '''utils.py: Usefull functions to help with data processing '''
 import json
-
+import random
 from pymysql import NULL, STRING
-from gameServer.models import Game, Card, Machine, Event_log, Event_type
+from gameServer.models import Game, Card, Machine, Event_log, Event_type, Game_result
 from gameServer import db
 
 
@@ -247,3 +247,44 @@ def get_current_game(machine_id):
         return machines_in_games[machine_id]
     else:
         return None
+
+def spin(machine_id, bet, timestamp):
+    '''
+        Checks if machine is in the game and there is a card logged in and then do the spin.
+
+        returns: ID of the game. None if there is no game on machine
+    '''
+
+    if( int(bet) not in [1, 2, 5, 10, 20, 50, 100]):
+        raise ValueError("bet is not a acceptable number! Acceptable numbers are: [1, 2, 5, 10, 20, 50, 100]")
+    
+    machine = Machine.query.get(machine_id)
+    card_id = machine.card_id
+    
+    if card_id is None:
+        raise SystemError("There is no card associated with this machine!")
+
+    game_id = get_current_game(machine_id)
+
+    if game_id is None:
+        raise SystemError("Machine is not in the game!")
+
+    
+    random_flip = random.uniform(0,1)
+
+    if random_flip > 0.5:
+
+        value_list = [1.5, 2.0, 2.5, 3.0]
+        random_number = random.choice(value_list)
+        bet = int(bet)
+
+        win = bet * random_number
+    
+    else:
+
+        win = 0
+
+    game_result = Game_result(created_datetime=timestamp, bet=bet, win=win, machine_id=machine_id, card_id=card_id, game_id=game_id)
+    db.session.add(game_result)
+    db.session.commit()
+

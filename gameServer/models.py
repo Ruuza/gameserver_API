@@ -32,7 +32,7 @@ class Game_result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     bet = db.Column(db.Integer, nullable=False)
-    win = db.Column(db.Boolean, nullable=False)
+    win = db.Column(db.Integer, nullable=False)
     machine_id = db.Column(db.Integer, db.ForeignKey('machine.id'), nullable=False)
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
